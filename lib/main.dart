@@ -32,6 +32,48 @@ class _EmailSenderState extends State<EmailSender> {
   TextEditingController messageController = TextEditingController();
   bool emailSent = false;
 
+  clearTextFields() {
+    nameController.clear();
+    emailController.clear();
+    messageController.clear();
+  }
+
+  sendEmail() {
+    
+  }
+
+  Future sendEmail({
+    required String name,
+    required String date,
+    required String mobileNumber,
+    required String email,
+    required String userId,
+    required String message,
+  }) async {
+    String emailPostUrl = "https://api.emailjs.com/api/v1.0/email/send";
+    final url = Uri.parse(emailPostUrl);
+    final response = await http.post(url,
+        headers: {
+          'origin': "http://localhost",
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "service_id": "{ENTER SERVICE ID}",
+          "template_id": "ENTER TEMPLATE ID",
+          "user_id": "{ENTER USER ID}",
+          'template_params': {
+            "email_address": email,
+            "mobile_number": mobileNumber,
+            "from_name": name,
+            "date": date,
+            "user_id": userId,
+            "message": message,
+          }
+        }));
+    print("Email Response Body:");
+    print(response.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,9 +144,8 @@ class _EmailSenderState extends State<EmailSender> {
                             borderRadius: BorderRadius.circular(00))),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        nameController.clear();
-                        emailController.clear();
-                        messageController.clear();
+                        sendEmail();
+                        clearFields();
                       }
                     },
                     child: const Text('Send', style: TextStyle(fontSize: 16)),
