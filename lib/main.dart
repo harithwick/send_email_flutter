@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -26,7 +29,7 @@ class EmailSender extends StatefulWidget {
 }
 
 class _EmailSenderState extends State<EmailSender> {
-  GlobalKey formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController messageController = TextEditingController();
@@ -38,18 +41,7 @@ class _EmailSenderState extends State<EmailSender> {
     messageController.clear();
   }
 
-  sendEmail() {
-    
-  }
-
-  Future sendEmail({
-    required String name,
-    required String date,
-    required String mobileNumber,
-    required String email,
-    required String userId,
-    required String message,
-  }) async {
+  Future sendEmail() async {
     String emailPostUrl = "https://api.emailjs.com/api/v1.0/email/send";
     final url = Uri.parse(emailPostUrl);
     final response = await http.post(url,
@@ -62,12 +54,9 @@ class _EmailSenderState extends State<EmailSender> {
           "template_id": "ENTER TEMPLATE ID",
           "user_id": "{ENTER USER ID}",
           'template_params': {
-            "email_address": email,
-            "mobile_number": mobileNumber,
-            "from_name": name,
-            "date": date,
-            "user_id": userId,
-            "message": message,
+            "email": emailController.text,
+            "name": nameController.text,
+            "message": messageController.text,
           }
         }));
     print("Email Response Body:");
@@ -142,10 +131,12 @@ class _EmailSenderState extends State<EmailSender> {
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(00))),
-                    onPressed: () {
+                    onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        sendEmail();
-                        clearFields();
+                        await sendEmail();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Email sent')),
+                        );
                       }
                     },
                     child: const Text('Send', style: TextStyle(fontSize: 16)),
